@@ -1,0 +1,2 @@
+#!/bin/sh
+exec xterm -bg black -fg white -e slurm -c -i eth0

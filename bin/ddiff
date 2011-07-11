@@ -1,0 +1,36 @@
+#!/bin/zsh
+USAGE="\
+USAGE:\t$(basename $0) [OPTIONS] FILE... DIRECTORY
+\t$(basename $0) [OPTIONS] DIRECTORY FILE...
+OPTIONS (default -u):
+\t-eq    nur die Dateinamen gleicher Dateien anzeigen
+\t-ne    nur die Dateinamen verschiedener Dateien anzeigen
+
+\tAlle anderen Argumente gehen direkt an diff."
+opts=""
+while [ "${argv[1][1]}" = "-" ]; do
+    opts=($opts $argv[1])
+    shift
+done
+opts=${opts:-"-u"}
+if [ "$#" -lt 2 ]; then
+    echo $USAGE
+    exit -1
+fi
+case $opts in
+    "-eq") cmd() { cmp -s "$1" "$2" && echo "$2"; } ;;
+    "-ne") cmd() { cmp -s "$1" "$2" || echo "$2"; } ;;
+    *)     cmd() { diff $opts $1 $2 } ;;
+esac
+if [ -d "$argv[1]" ]; then
+    for i in $argv[2,-1]; do
+        cmd "$argv[1]/$(basename $i)" "$i"
+    done
+elif [ -d "$argv[-1]" ]; then
+    for i in $argv[1,-2]; do
+        cmd "$i" "$argv[-1]/$(basename $i)"
+    done
+else
+    echo $USAGE
+    exit -1
+fi

@@ -1,0 +1,16 @@
+#!/bin/sh
+if [ -z "$2" ]; then
+    echo "usage: $(basename $0) srcdir1 [srcdir2 ...] target"
+    exit 1
+fi
+tmp=$(mktemp)
+while [ -n "$2" ]; do
+    ls $PWD/$1/*.?pp >> $tmp 2>/dev/null
+    ls $PWD/$1/*.[ch] >> $tmp 2>/dev/null
+    shift
+done
+mv $tmp $1/cscope.files
+echo "$1/cscope.files written"
+cd $1
+cscope -b
+echo "$1/cscope.out written"

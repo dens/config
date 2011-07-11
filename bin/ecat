@@ -1,0 +1,8 @@
+#!/bin/sh
+echo "lese stdin..."
+f=$(mktemp /tmp/${ECAT_PREFIX:-ecat}.XXXXXX)
+cat>$f
+emacsclient $1 $f
+if [ "$1" != "-n" ]; then
+    rm $f
+fi
