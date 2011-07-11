@@ -6,14 +6,13 @@
 (require 'dired-x)
 
 (add-to-list 'load-path "~/.emacs.d/lisp")
-(add-to-list 'load-path "~/.emacs.d/site-lisp")
 
 (require 'yasnippet-bundle)
 (require 'xcscope nil t)
 (require 'w3m-load nil t)
 (require 'kmacros)
 
-(load "site-config" t)
+(load "~/.emacs.pre" t)
 
 (autoload 'slime "slime/slime" nil t)
 (autoload 'haskell-mode "haskell-mode/haskell-site-file" nil t)
@@ -162,7 +161,8 @@
 (c-add-style "gnudv"
  '("gnu++"
    (c-basic-offset . 4)
-   (c-offsets-alist . ((substatement-open . 0)))))
+   (c-offsets-alist . ((substatement-open . 0)
+                       (statement-case-open . 2)))))
 
 
 (defun my-c-mode-common ()
@@ -1109,7 +1109,8 @@ void set_$1 (const $2& ${3:x}) {_$1 = $3;}\n$0")
   ("cer" "cerr << $1 << endl;$0")
   ("sco" "std::cout << $1 << std::endl;$0")
   ("sce" "std::cerr << $1 << std::endl;$0")
-  ("log" "clog_debug() << \"$0")
+  ("deb" "clog_debug$1() << \"$0")
+  ("dbg" "clog_dbg() << \"$0")
   ("trac" "clog_trace() << \"$0")
   )
 'cc-mode)
@@ -1289,3 +1290,5 @@ Loop While $1")
  '(erc-timestamp-face ((t (:weight bold :foreground "darkgreen"))))
  '(italic ((((supports :slant italic)) (:slant italic :family "Monospace"))))
  '(section-header ((t (:inherit font-lock-comment-face :weight bold))) t))
+
+(load "~/.emacs.post" t)
