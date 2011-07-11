@@ -1,0 +1,16 @@
+[user]
+	name = ds
+	email = ds@localhost
+
+[color]
+	ui = auto
+
+[alias]
+        s = status -s
+        st = status
+        br = branch
+        co = checkout
+        ci = commit
+        pu = pull
+        di = diff
+        dic = diff --cached
