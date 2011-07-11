@@ -1,14 +1,12 @@
 # -*- shell-script -*-
 
 [ -z "$PS1" ] && return
-[ -d "$HOME/bin" ] && PATH=$HOME/bin:$PATH
-[ -d "$HOME/env" ] && PATH=$HOME/env:$PATH
 
-# setopt share_history hist_ignore_all_dups
-setopt inc_append_history hist_ignore_all_dups hist_save_no_dups no_extended_history
-setopt hist_ignore_space
-setopt autopushd #pushd_ignore_dups
-setopt extended_glob csh_null_glob no_flow_control no_bg_nice no_hup no_check_jobs
+#### OPTIONS
+setopt incappendhistory histignorealldups histsavenodups noextendedhistory
+setopt histignorespace
+setopt autopushd
+setopt extendedglob cshnullglob noflowcontrol nobgnice nohup nocheckjobs
 setopt rmstarsilent
 
 #### WORDCHARS
@@ -37,8 +35,10 @@ precmd () {}
 case "$TERM" in
     xterm|rxvt-unicode)
         precmd () {
-            print -Pn "\e]0;%n@%m:%~\a"    # xterm title
-#            print -Pn "\e]30;%2~\a"        # konsole tab
+            print -Pn "\e]0;%n@%m:%~\a" # xterm title
+            if [ ! -z "$KONSOLE_DCOP" ]; then
+                print -Pn "\e]30;%2~\a" # konsole tab
+            fi
         }
         precmd
         ;;
@@ -47,15 +47,13 @@ esac
 #### EMACS
 if [ "$EMACS" = "t" ]; then
     setopt no_zle
-    export PAGER=@ecat
+    export PAGER=ecat
 fi
 if [ -n "$DISPLAY" -a $UID -ne 0 -a -z "$SSH_TTY" ]; then
-    export EDITOR='emacsclient -c'
+    export EDITOR=emacsclient-c
 else
     export EDITOR=emacs
 fi
-
-export LESS=-SRXF
 
 #### KEYS
 autoload edit-command-line
@@ -66,37 +64,49 @@ bindkey "\eF" emacs-forward-word
 bindkey "\ee" edit-command-line
 bindkey "^W" kill-region
 
-#### runbox
-. runbox.zshrc
+#### DEFAULTS
+export LESS=-FRSX
+export LS_COLORS='no=00:fi=00:di=01;34:ln=00;36:pi=00:so=00:do=00:bd=00:cd=00:or=00:su=00:sg=00:tw=01;34:ow=01;34:st=01;34:ex=01;32:';
+export GREP_COLORS="fn=1;32:ln=0;31:mt=0;43"
 
 #### ALIAS
-. @.env
 
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias d='dirs -v|head|tac'
-alias r='fc -R'
 alias spwd='pwd > ~/.spwd.txt'
 alias rpwd='[ -f ~/.spwd.txt ] && { cd $(cat ~/.spwd.txt) && rm ~/.spwd.txt }'
+alias r='fc -R'
+alias mc='. /usr/share/mc/bin/mc-wrapper.sh -d'
 alias mmv='noglob zmv -W'
 alias mcp='noglob zmv -C -W'
 alias mln='noglob zmv -L -W'
-alias cst='cvs -n update 2>/dev/null'
-alias cmo="cst|grep -E '^(\?|M|A|C|R)'"
-alias cdi='cvs diff -uN|ECAT_PREFIX=diff ecat'
-alias ccm='cvs commit -m'
-alias gst='git status'
-alias gcm='git commit -am'
-if [ "$EMACS" = "t" ]; then
-    alias gdi='git diff | ECAT_PREFIX=diff ecat' 
-    alias gdic='git diff --cached | ECAT_PREFIX=diff ecat' 
-else
-    alias gdi='git diff --color'
-    alias gdic='git diff --color --cached'
-fi
 
-[ -f ~/.zshrc_site ] && source ~/.zshrc_site
+alias ls='ls --color=auto'
+alias l='ls -l'
+alias la='l -a'
+alias df='df -h'
+alias ka='killall'
+alias p='ps -eo pid,user,args --sort user -H'
+alias pg='pgrep -lf'
+alias e='emacsclient-n'
+alias ec='emacsclient-c'
+alias se='sudo -e'
+alias bc='bc -ql'
+bci() {echo -e "ibase=$1\n$(echo $2 | tr '[:lower:]' '[:upper:]')" | bc; }
+bco() {echo -e "obase=$1\n$(echo $2 | tr '[:lower:]' '[:upper:]')" | bc; }
+alias cl='clisp -q'
+alias sbcl='sbcl --noinform'
+alias grep='grep --color=auto'
+alias g='grep -nH'
+alias gi='g -i'
+alias gdb='gdb -q'
+gdbat() {gdb --eval-command="att $@"; }
+alias ccm='cvs commit -m'
+cdi() {cvs diff -uN "$@" | ECAT_PREFIX=diff ecat; }
+alias cst='cvs -n update 2>&1 | grep "^[UPARMC?]"'
+alias cmo='cst | grep -E "^(\?|M|A|C|R)"'
 
 #### ZSH
 zle -C complete-file complete-word _generic
@@ -108,38 +118,5 @@ autoload -Uz compinit
 compinit
 autoload -U zmv
 
-    # precmd() {
-    #     emacsclient -e \
-    #         "(with-current-buffer (window-buffer (selected-window)) \
-    #            (shell-cd \"$PWD\"))" >/dev/null
-    # }
-
-# alias 1='ls -1'
-# alias t='tree -A'
-# alias mc='. /usr/share/mc/bin/mc-wrapper.sh -d'
-# tv () {wmctrld tv mplayer -geometry +1440+123 -fs "$@" >/dev/null 2>&1 }
-
-# alias cmo="cvs status 2>&1|grep -v '^cvs status: Examining' | g -E '^(\?|.*((Locally (Modified|Added|Removed))|(Needs Merge)))'"
-# alias cst="cvs status 2>&1|grep -Ev '^((cvs status: Examining)|(.*Up-to-date))' | g -E '^(\?|.*Status:)'"
-
-# [ -n "$SSH_TTY" -o $UID -eq 0 ] && export CWDPROMPT="%n@%m:$CWDPROMPT"
-# [ -n "$SSH_TTY" ] && local phost="%n@%m:"
-# export PROMPT=$'%(!.%{\e[1;31m%}root%{\e[0m%} .)%{\e[1;39m%}'$phost$'%~%{\e[0m%} %(!.#.$) '
-        # precmd () {print -Pn "\e]30;$CWDPROMPT\a"; } # konsole tab
-# bindkey "^[^[[A" cd-up          # alt-up (rxvt)
-# bindkey "^[^[[D" cd-pop         # alt-left (rxvt)
-
-# cd-up () {
-#     pushd .. > /dev/null
-#     precmd
-#     zle reset-prompt
-# }
-# zle -N cd-up
-# cd-pop () {
-#     popd > /dev/null
-#     precmd
-#     zle reset-prompt
-# }
-# zle -N cd-pop
-# bindkey "\e[1;3A" cd-up         # alt-up (konsole)
-# bindkey "\e[1;3D" cd-pop        # alt-left (konsole)
+[ -f ~/.alias ] && source ~/.alias
+[ -f ~/.zshrc_site ] && source ~/.zshrc_site
