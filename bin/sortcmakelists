@@ -1,0 +1,38 @@
+#!/usr/bin/python
+import re, tempfile, os
+
+infile = 'CMakeLists.txt'
+bakfile = 'CMakeLists.txt.~sortedbak~'
+
+os.rename (infile, bakfile)
+print infile, 'renamed as', bakfile
+
+e = re.compile (r'^.*#@SORT')
+lst = []
+inlst = False
+tmpfile = tempfile.mkstemp ('', infile + '-sorted', '.')
+with os.fdopen (tmpfile[0], 'w') as out:
+    for line in open (bakfile, 'r'):
+        line = line.rstrip ('\n')
+        if not inlst:
+            print >> out, line
+            if e.match (line):
+                inlst = True
+        else:
+            symbols = re.findall (r'[^\s)#]+|\)|#', line)
+            if '#' in symbols:
+                raise Exception ('\n## COMMENT ##\n  Line: ' + line)
+            if ')' in symbols:
+                index = symbols.index (')')
+                lst += symbols[:index]
+                lst.sort()
+                print >> out, '  ' + '\n  '.join (lst) + '\n)'
+                rest = symbols[index+1:]
+                if rest:
+                    print >> out, ' '.join (rest)
+                lst = []
+                inlst = False
+            else:
+                lst += symbols
+
+os.rename (tmpfile[1], infile)
