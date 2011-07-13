@@ -11,7 +11,9 @@ e = re.compile (r'^.*#@SORT')
 lst = []
 inlst = False
 tmpfile = tempfile.mkstemp ('', infile + '-sorted', '.')
-with os.fdopen (tmpfile[0], 'w') as out:
+out = os.fdopen (tmpfile[0], 'w')
+
+try:
     for line in open (bakfile, 'r'):
         line = line.rstrip ('\n')
         if not inlst:
@@ -34,5 +36,7 @@ with os.fdopen (tmpfile[0], 'w') as out:
                 inlst = False
             else:
                 lst += symbols
+finally:
+    out.close()
 
 os.rename (tmpfile[1], infile)
