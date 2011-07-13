@@ -2,15 +2,19 @@
 	name = ds
 	email = ds@localhost
 
+[core]
+	pager = less -FRSX
+	excludesfile = ~/.gitignore
+
 [color]
 	ui = auto
 
 [alias]
-        s = status -s
-        st = status
-        br = branch
-        co = checkout
-        ci = commit
-        pu = pull
-        di = diff
-        dic = diff --cached
+	s = status -s
+	st = status
+	br = branch
+	co = checkout
+	ci = commit
+	pu = pull
+	di = diff
+	dic = diff --cached
