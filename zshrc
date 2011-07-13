@@ -44,17 +44,6 @@ case "$TERM" in
         ;;
 esac
 
-#### EMACS
-if [ "$EMACS" = "t" ]; then
-    setopt no_zle
-    export PAGER=ecat
-fi
-if [ -n "$DISPLAY" -a $UID -ne 0 -a -z "$SSH_TTY" ]; then
-    export EDITOR=emacsclient-c
-else
-    export EDITOR=emacs
-fi
-
 #### KEYS
 autoload edit-command-line
 zle -N edit-command-line
@@ -69,15 +58,25 @@ export LESS=-FRSX
 export LS_COLORS='no=00:fi=00:di=01;34:ln=00;36:pi=00:so=00:do=00:bd=00:cd=00:or=00:su=00:sg=00:tw=01;34:ow=01;34:st=01;34:ex=01;32:';
 export GREP_COLORS="fn=1;32:ln=0;31:mt=0;43"
 
-#### ALIAS
+if [ "$EMACS" = "t" ]; then
+    setopt no_zle
+    export PAGER=ecat
+    export GIT_PAGER=ecat
+fi
+if [ -n "$DISPLAY" -a $UID -ne 0 -a -z "$SSH_TTY" ]; then
+    export EDITOR=emacsclient-c
+else
+    export EDITOR=emacs
+fi
 
+#### ALIAS
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias d='dirs -v|head|tac'
+alias r='fc -R'
 alias spwd='pwd > ~/.spwd.txt'
 alias rpwd='[ -f ~/.spwd.txt ] && { cd $(cat ~/.spwd.txt) && rm ~/.spwd.txt }'
-alias r='fc -R'
 alias mc='. /usr/share/mc/bin/mc-wrapper.sh -d'
 alias mmv='noglob zmv -W'
 alias mcp='noglob zmv -C -W'
@@ -103,7 +102,7 @@ alias g='grep -nH'
 alias gi='g -i'
 alias gdb='gdb -q'
 gdbat() {gdb --eval-command="att $@"; }
-alias ccm='cvs commit -m'
+alias cci='cvs commit -m'
 cdi() {cvs diff -uN "$@" | ECAT_PREFIX=diff ecat; }
 alias cst='cvs -n update 2>&1 | grep "^[UPARMC?]"'
 alias cmo='cst | grep -E "^(\?|M|A|C|R)"'
