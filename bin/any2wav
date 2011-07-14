@@ -1,0 +1,4 @@
+#!/bin/sh
+for i in "$@"; do
+    mplayer -vo null -vc dummy -af resample=44100 -ao pcm:file="$i.wav" "$i"
+done

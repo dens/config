@@ -1,0 +1,14 @@
+#!/bin/sh
+dir=$(mktemp -d)
+cd $dir
+mkfifo syslog
+trap "rm -r $dir" 0 1 2 3 4
+tail -n0 -f /var/log/syslog > syslog & pid=$!
+sudo /etc/init.d/fetchmail awaken
+gawk -v pid=$pid '
+{print}
+/fetchmail.* sleeping at/ {
+   system (sprintf ("kill %i", pid));
+   exit;
+}' < syslog
+sleep 5

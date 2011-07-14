@@ -1,0 +1,67 @@
+#!/usr/bin/perl -w
+use POSIX qw(tmpnam);
+use Switch;
+
+$usage =
+"usage: $0 [options] <input-file> -- [mencoder-options]\n".
+"options:\n".
+"   [-s mb | -b kbps]  target-size or -bitrate (default-bitrate: 4900 kbps)\n".
+"   -o path            output-file (default: <input-file>.mpg)\n".
+"   -a kbps            audio-bitrate (default: 128 kbps)\n";
+
+while(defined($ARGV[0]) && $ARGV[0] ne "--") {
+    switch($ARGV[0]) {
+        case "-s" { $size    = $ARGV[1]; shift; }
+        case "-b" { $bitrate = $ARGV[1]; shift; }
+        case "-o" { $dst     = $ARGV[1]; shift; }
+        case "-a" { $audio   = $ARGV[1]; shift; }
+        else {
+            die $usage if defined($src);
+            $src = $ARGV[0];
+        }
+    }
+    shift;
+}
+shift;
+
+die $usage unless defined($src);
+die $usage if defined($size) && defined($bitrate);
+$bitrate = 4900       unless defined($bitrate);
+$dst     = "$src.mpg" unless defined($dst);
+$audio   = 128        unless defined($audio);
+
+$_ = `mplayer -vo null -ao null -quiet -identify -frames 0 \"$src\" 2>&1`;
+foreach(split(/\n/)) {
+    $width  = $1 if /^ID_VIDEO_WIDTH=(.*)/;
+    $height = $1 if /^ID_VIDEO_HEIGHT=(.*)/;
+    $len    = $1 if /^ID_LENGTH=(.*)/;
+}
+
+$new_height = int($width * 3/4 + 0.5);
+if(defined($size)) {
+    $bitrate = int(($size*1024 - $audio/8 * $len) / $len * 8 + 0.5);
+}
+
+$passlog  = tmpnam();
+END { unlink $passlog if -f $passlog; }
+
+sub encode {
+    $pass = $_[0];
+    $cmd =
+      "mencoder " .
+      "-of mpeg -mpegopts format=dvd -ofps 25 " .
+      "-srate 48000 " . #-af lavcresample=4800 " .
+      "-ovc lavc -oac lavc -lavcopts vpass=$pass:" .
+      "vcodec=mpeg2video:vrc_buf_size=1835:keyint=15:vrc_maxrate=9800:" .
+      "vbitrate=$bitrate:aspect=4/3:acodec=mp2:abitrate=$audio " .
+      "-passlogfile $passlog -o \"$dst\" \"$src\"";
+    if($width != 720 || $height != 576) {
+        $cmd .= " -vf expand=$width:$new_height,scale=720:576,harddup";
+    }
+    $cmd .= " @ARGV";
+#     print $cmd, "\n";
+    system $cmd;
+}
+
+encode(1);
+encode(2);
