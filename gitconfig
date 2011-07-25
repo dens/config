@@ -1,20 +1,29 @@
+# -*- conf -*-
+
 [user]
-	name = ds
-	email = ds@localhost
+        name = ds
+        email = ds@localhost
 
 [core]
-	pager = less -FRSX
-	excludesfile = ~/.gitignore
+        pager = less -FRSX
+        excludesfile = ~/.gitignore
+
+[pager]
+        status = true
 
 [color]
-	ui = auto
+        ui = auto
 
 [alias]
-	s = status -s
-	st = status
-	br = branch
-	co = checkout
-	ci = commit
-	pu = pull
-	di = diff
-	dic = diff --cached
+        s = status -s
+        st = status
+        ci = commit
+        br = branch
+        co = checkout
+        di = diff
+        dic = diff --cached
+        ls = ls-files
+
+[i18n]
+        logOutputEncoding = iso-8859-1
+        commitEncoding = iso-8859-1
