@@ -312,7 +312,7 @@
                         (file-name-sans-extension file))
                 11))))
 
-(add-hook 'cmake-mode-hook 'yas/minor-mode)
+;; (add-hook 'cmake-mode-hook 'yas/minor-mode)
 
 (add-hook 'compilation-mode-hook 'my-compilation-mode)
 (defun my-compilation-mode ()

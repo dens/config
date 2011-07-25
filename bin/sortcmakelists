@@ -1,23 +1,46 @@
 #!/usr/bin/python
-import re, tempfile, os, sys
+import re, os, sys
 
-infile = sys.argv[1]
-outfile = '/dev/stdout'
+usage = \
+    'usage: %s INFILE OUTFILE\n' \
+    '       %s -r FILE' % (sys.argv[0], sys.argv[0])
+
+if len (sys.argv) != 3:
+    print usage
+    sys.exit()
+                       
+if sys.argv[1] == '-r':
+    destfile = sys.argv[2]
+    ifile = destfile + '.~sortedbak~'
+    os.rename (destfile, ifile)
+    ofile = destfile
+    print ofile, 'renamed as', ifile
+else:
+    ifile = sys.argv[1]
+    ofile = sys.argv[2]
+
+if ifile == '-':
+    fi = sys.stdin
+else:
+    fi = open (ifile, 'r')
+
+if ofile == '-':
+    fo = sys.stdout
+else:
+    fo = open (ofile, 'w')
 
 lst = []
 inlst = False
-out = open (outfile, 'w')
-
-for line in open (infile, 'r'):
+for line in fi:
     if not inlst:
-        print >> out, line,
-        if re.match (r'^\s*#[^#]*@SORT@', line):
+        print >> fo, line,
+        if re.match (r'^[^#]*#[^#]*@SORT@', line):
             inlst = True
     else:
         line = line.strip()
         if line.startswith (')'):
             lst.sort()
-            print >> out, '  ' + '\n  '.join (lst) + '\n' + line
+            print >> fo, '  ' + '\n  '.join (lst) + '\n' + line
             lst = []
             inlst = False
         else:
