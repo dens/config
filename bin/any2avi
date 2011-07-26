@@ -1,0 +1,31 @@
+#!/bin/sh -e
+
+usage="$0 VIDEOBITRATE AUDIOBITRATE INFILE OUTFILE
+Beispiel Video Bitrate: 400, 600, 800
+         Audio Bitrate: 64, 128"
+
+vbitrate=${1?$usage}
+abitrate=${2?$usage}
+src=${3?$usage}
+dst=${4?$usage}
+
+# eval $(midentify "$src")
+# vbitrate=${ID_VIDEO_BITRATE?"error identify ID_VIDEO_BITRATE"}
+# abitrate=${ID_AUDIO_BITRATE?"error identity ID_AUDIO_BITRATE"}
+# echo "abitrate: ${abitrate}"
+# echo "vbitrate: ${vbitrate}"
+
+mencoder "$src" \
+    -ofps 23.976 \
+    -ovc xvid \
+    -xvidencopts pass=1:turbo=1:bitrate=$vbitrate \
+    -oac copy \
+    -o /dev/null
+
+mencoder "$src" \
+    -ofps 23.976 \
+    -ovc xvid \
+    -xvidencopts pass=2:bitrate=$vbitrate \
+    -oac mp3lame \
+    -lameopts abr:br=$abitrate \
+    -o "$dst"
