@@ -1,0 +1,58 @@
+#!/bin/sh
+
+usage="usage: $0 APPNAME VERSION EXTRA OUTFILE"
+
+appname=${1?$usage}
+version=${2?$usage}
+extra=${3?$usage}
+outfile=${4?$usage}
+
+cversion=$(echo $version|sed 's/[^a-zA-Z0-9_]/_/g')
+cextra=$(echo $extra|sed 's/[^a-zA-Z0-9_]/_/g')
+timestamp=$(date "+%s")
+compiletime=$(date -d@$timestamp "+%Y-%m-%d %H:%M")
+ccompiletime=$(date -d@$timestamp "+%Y%m%d%H%M")
+
+extratag=""
+if [ ! -z "$cextra" ]; then
+    extratag="
+const char   ${appname}_TAG_EXTRA_${cextra}[] = \"$extra\";"
+fi
+
+cat > $outfile <<EOF
+#include <time.h> // time_t
+
+const char   ${appname}_TAG_VERSION_${cversion}[] = "$version";$extratag
+const char   ${appname}_TAG_COMPILE_TIME_${ccompiletime}[] = "$compiletime";
+const time_t ${appname}_TAG_COMPILE_TIMESTAMP_${timestamp} = $timestamp;
+
+const char*
+buildinfo_program_version()
+{
+  return "${version}";
+}
+
+const char*
+buildinfo_version()
+{
+  return "${version}${extra}";
+}
+
+const char*
+buildinfo_full_version()
+{
+  return "${version}${extra} (${compiletime})";
+}
+
+const char*
+buildinfo_compile_time()
+{
+  return ${appname}_TAG_COMPILE_TIME_${ccompiletime};
+}
+
+time_t
+buildinfo_compile_timestamp()
+{
+  return ${appname}_TAG_COMPILE_TIMESTAMP_${timestamp};
+}
+EOF
