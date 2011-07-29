@@ -108,40 +108,61 @@ include (${MODULE_ROOT}/cmake/version.cmake)
 
 set (BUILDINFO_INCLUDE_DIR ${MODULE_ROOT}/cmake/include)
 
-if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-  set (PROGRAM_VERSION_EXTRA "-${CMAKE_BUILD_TYPE}")
-else()
-  set (PROGRAM_VERSION_EXTRA "")
+# PROGRAM_VERSION_EXTRA anhand des Build-Types automatisch
+# setzen, aber keine Benutzereingabe überschreiben
+if (NOT DEFINED PROGRAM_VERSION_EXTRA OR "${PROGRAM_VERSION_EXTRA}" MATCHES "^(|-Dbg|-Debug)$")
+  if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+    set (PROGRAM_VERSION_EXTRA "-${CMAKE_BUILD_TYPE}"
+      CACHE STRING "Extra-Version-Info" FORCE)
+  else()
+    set (PROGRAM_VERSION_EXTRA ""
+      CACHE STRING "Extra-Version-Info" FORCE)
+  endif()
 endif()
 
-set (PROGRAM_VERSION_FILE ${CMAKE_BINARY_DIR}/buildinfo_program_version.c)
-
-set_source_files_properties (${PROGRAM_VERSION_FILE} PROPERTIES
+set_source_files_properties (${CMAKE_BINARY_DIR}/buildinfo.c PROPERTIES
   GENERATED TRUE)
 
+set_source_files_properties (${CMAKE_BINARY_DIR}/buildinfo.o PROPERTIES
+  GENERATED TRUE
+  EXTERNAL_OBJECT TRUE)
+
 add_custom_command (
-  OUTPUT ${PROGRAM_VERSION_FILE}
+  OUTPUT ${CMAKE_BINARY_DIR}/buildinfo.c
   COMMAND ${MODULE_ROOT}/cmake/bin/mkprogramversion
-  ARGS "${PROGRAM_NAME}" "${PROGRAM_VERSION}" "${PROGRAM_VERSION_EXTRA}" "${PROGRAM_VERSION_FILE}"
+  ARGS "${PROGRAM_NAME}" "${PROGRAM_VERSION}" "${PROGRAM_VERSION_EXTRA}" "${CMAKE_BINARY_DIR}/buildinfo.c"
+  VERBATIM)
+
+# Problemfix:
+#   export CC="ccache distcc gcc"
+#    -->   CMAKE_C_COMPILER      = "ccache"
+#          CMAKE_C_COMPILER_ARG1 = " distcc gcc"
+string (REPLACE " " ";" compilerargsfix "${CMAKE_C_COMPILER_ARG1}")
+
+add_custom_command (
+  OUTPUT ${CMAKE_BINARY_DIR}/buildinfo.o
+  COMMAND ${CMAKE_C_COMPILER}
+  ARGS ${compilerargsfix} -c ${CMAKE_BINARY_DIR}/buildinfo.c -o ${CMAKE_BINARY_DIR}/buildinfo.o
+  DEPENDS ${CMAKE_BINARY_DIR}/buildinfo.c
   VERBATIM)
 
 get_property (GUARD_d816d979367d41ddbbf79a0f29d4c86f GLOBAL PROPERTY "GUARD_d816d979367d41ddbbf79a0f29d4c86f" SET)
 if (NOT GUARD_d816d979367d41ddbbf79a0f29d4c86f)
 
   macro (add_executable name)
-    _add_executable (${name} ${ARGN} ${PROGRAM_VERSION_FILE})
+    _add_executable (${name} ${ARGN} ${CMAKE_BINARY_DIR}/buildinfo.o)
   endmacro()
 
   macro (add_library name shared)
     if ("${shared}" STREQUAL "SHARED")
-      _add_library (${name} SHARED ${ARGN} ${PROGRAM_VERSION_FILE})
+      _add_library (${name} SHARED ${ARGN} ${CMAKE_BINARY_DIR}/buildinfo.o)
     else()
       _add_library (${name} ${ARGN})
     endif()
   endmacro()
 
   add_custom_target (release
-    COMMAND rm ${PROGRAM_VERSION_FILE})
+    COMMAND rm ${CMAKE_BINARY_DIR}/buildinfo.c)
 
 endif()
 set_property (GLOBAL PROPERTY "GUARD_d816d979367d41ddbbf79a0f29d4c86f" TRUE)
