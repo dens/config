@@ -16,12 +16,12 @@ if (NOT CMAKE_CXX_FLAGS_DBG)
 endif()
 
 if (NOT CMAKE_EXE_LINKER_FLAGS_DBG)
-  set (CMAKE_EXE_LINKER_FLAGS_DBG "$ENV{LFLAGS} -Wl,-enable-new-dtags"
+  set (CMAKE_EXE_LINKER_FLAGS_DBG "$ENV{LFLAGS}"
     CACHE STRING "Linker-Flags Dbg (executables)" FORCE)
 endif()
 
 if (NOT CMAKE_SHARED_LINKER_FLAGS_DBG)
-  set (CMAKE_SHARED_LINKER_FLAGS_DBG "$ENV{LFLAGS} -Wl,-enable-new-dtags"
+  set (CMAKE_SHARED_LINKER_FLAGS_DBG "$ENV{LFLAGS}"
     CACHE STRING "Linker-Flags Dbg (shared libs)" FORCE)
 endif()
 
@@ -37,12 +37,12 @@ if (NOT CMAKE_CXX_FLAGS_DEBUG)
 endif()
 
 if (NOT CMAKE_EXE_LINKER_FLAGS_DEBUG)
-  set (CMAKE_EXE_LINKER_FLAGS_DEBUG "$ENV{LFLAGS} -Wl,-enable-new-dtags"
+  set (CMAKE_EXE_LINKER_FLAGS_DEBUG "$ENV{LFLAGS}"
     CACHE STRING "Linker-Flags (executables)" FORCE)
 endif()
 
 if (NOT CMAKE_SHARED_LINKER_FLAGS_DEBUG)
-  set (CMAKE_SHARED_LINKER_FLAGS_DEBUG "$ENV{LFLAGS} -Wl,-enable-new-dtags"
+  set (CMAKE_SHARED_LINKER_FLAGS_DEBUG "$ENV{LFLAGS}"
     CACHE STRING "Linker-Flags (shared libs)" FORCE)
 endif()
 
@@ -58,12 +58,12 @@ if (NOT CMAKE_CXX_FLAGS_RELEASE)
 endif()
 
 if (NOT CMAKE_EXE_LINKER_FLAGS_RELEASE)
-  set (CMAKE_EXE_LINKER_FLAGS_RELEASE "$ENV{LFLAGS} -Wl,-enable-new-dtags"
+  set (CMAKE_EXE_LINKER_FLAGS_RELEASE "$ENV{LFLAGS}"
     CACHE STRING "Linker-Flags Release (executables)" FORCE)
 endif()
 
 if (NOT CMAKE_SHARED_LINKER_FLAGS_RELEASE)
-  set (CMAKE_SHARED_LINKER_FLAGS_RELEASE "$ENV{LFLAGS} -Wl,-enable-new-dtags"
+  set (CMAKE_SHARED_LINKER_FLAGS_RELEASE "$ENV{LFLAGS}"
     CACHE STRING "Linker-Flags Release (shared libs)" FORCE)
 endif()
 
