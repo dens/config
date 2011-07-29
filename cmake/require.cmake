@@ -56,11 +56,11 @@ macro (require module)
   # Namen
   foreach (v ${PROVIDED_VARS})
     get_property (${v} GLOBAL PROPERTY "${v}")
-  endforeach (v ${PROVIDED_VARS})
+  endforeach()
 
   # Modulspezifisches
   include ("${MODULE_ROOT}/${module}/Module.cmake" OPTIONAL)
-endmacro (require subdir)
+endmacro()
 
 
 # provide VARS...
@@ -68,13 +68,13 @@ macro (provide)
   # eine globale Property für jede Variable
   foreach (v ${ARGN})
     set_property (GLOBAL PROPERTY "${v}" "${${v}}")
-  endforeach (v ${ARGN})
+  endforeach()
 
   # PROVIDED_VARS += VARS
   get_property (PROVIDED_VARS GLOBAL PROPERTY "PROVIDED_VARS")
   set (PROVIDED_VARS ${PROVIDED_VARS} ${ARGN})
   set_property (GLOBAL PROPERTY "PROVIDED_VARS" ${PROVIDED_VARS})
-endmacro ()
+endmacro()
 
 
 # require_directory DIRECTORY NAME [EXCLUDE_FROM_ALL]
