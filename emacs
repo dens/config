@@ -46,6 +46,8 @@
 
 ;;;; keys
 
+(setq yas/trigger-key (kbd "<backtab>")) ;S-tab
+
 (ffap-bindings)
 (global-set-key (kbd "RET") 'newline-and-indent)
 (global-set-key (kbd "M-X") 'in-directory)
@@ -312,7 +314,7 @@
                         (file-name-sans-extension file))
                 11))))
 
-;; (add-hook 'cmake-mode-hook 'yas/minor-mode)
+(add-hook 'cmake-mode-hook 'yas/minor-mode)
 
 (add-hook 'compilation-mode-hook 'my-compilation-mode)
 (defun my-compilation-mode ()
@@ -994,7 +996,7 @@ done")))
 ;;; snippets for cc-mode
 (yas/define-snippets 'cc-mode
 '(
-  ("struct"
+  ("st"
    "struct $1
 {
     $0
@@ -1038,9 +1040,6 @@ main (int argc, char** argv)
   $0
 }
 while (${1:condition});" "do { ... } while (...)")
-  ("inc" "#include <$1>\n" "#include <...>")
-  ("inc.1" "#include \"$1\"\n" "#include \"...\"")
-  ("printf" "printf (\"$1\", $2);$0")
   ("fpe" "fprintf (stderr, \"$1\\n\"$2);$0")
   )
 'text-mode)
@@ -1155,14 +1154,27 @@ void set_$1 (const $2& ${3:x}) {_$1 = $3;}\n$0")
 
 (yas/define-snippets 'cmake-mode
 '(
-  ("project"
+  ("pro"
    "cmake_minimum_required (VERSION 2.6)
 project ($1)
 
 $0")
+  ("ae"
+   "add_executable ($1)\n$0")
+  ("al"
+   "add_library ($1 SHARED $2)\n$0")
+  ("acc"
+   "add_custom_command (
+  COMMAND $1
+  DEPENDS $2
+  VERBATIM)\n$0")
+  ("inst"
+   "install (TARGETS $1 DESTINATION $2)\n$0")
+  ("cache"
+   "set (${1:var} ${2:value}
+  CACHE ${3:STRING} \"${4:docstring}\" FORCE)\n$0")
   )
-'cmake-mode)
-
+)
 
 ;;; snippets for visual-basic-mode
 (yas/define-snippets 'visual-basic-mode

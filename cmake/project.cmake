@@ -107,6 +107,8 @@ endfunction()
 include (${MODULE_ROOT}/cmake/version.cmake)
 
 set (BUILDINFO_INCLUDE_DIR ${MODULE_ROOT}/cmake/include)
+set (BUILDINFO_SRC ${CMAKE_BINARY_DIR}/buildinfo.c)
+set (BUILDINFO_OBJ ${CMAKE_BINARY_DIR}/buildinfo.o)
 
 # PROGRAM_VERSION_EXTRA anhand des Build-Types automatisch
 # setzen, aber keine Benutzereingabe überschreiben
@@ -120,17 +122,17 @@ if (NOT DEFINED PROGRAM_VERSION_EXTRA OR "${PROGRAM_VERSION_EXTRA}" MATCHES "^(|
   endif()
 endif()
 
-set_source_files_properties (${CMAKE_BINARY_DIR}/buildinfo.c PROPERTIES
+set_source_files_properties (${BUILDINFO_SRC} PROPERTIES
   GENERATED TRUE)
 
-set_source_files_properties (${CMAKE_BINARY_DIR}/buildinfo.o PROPERTIES
+set_source_files_properties (${BUILDINFO_OBJ} PROPERTIES
   GENERATED TRUE
   EXTERNAL_OBJECT TRUE)
 
 add_custom_command (
-  OUTPUT ${CMAKE_BINARY_DIR}/buildinfo.c
+  OUTPUT ${BUILDINFO_SRC}
   COMMAND ${MODULE_ROOT}/cmake/bin/mkprogramversion
-  ARGS "${PROGRAM_NAME}" "${PROGRAM_VERSION}" "${PROGRAM_VERSION_EXTRA}" "${CMAKE_BINARY_DIR}/buildinfo.c"
+  ARGS "${PROGRAM_NAME}" "${PROGRAM_VERSION}" "${PROGRAM_VERSION_EXTRA}" "${BUILDINFO_SRC}"
   VERBATIM)
 
 # Problemfix:
@@ -140,29 +142,34 @@ add_custom_command (
 string (REPLACE " " ";" compilerargsfix "${CMAKE_C_COMPILER_ARG1}")
 
 add_custom_command (
-  OUTPUT ${CMAKE_BINARY_DIR}/buildinfo.o
+  OUTPUT ${BUILDINFO_OBJ}
   COMMAND ${CMAKE_C_COMPILER}
-  ARGS ${compilerargsfix} -c ${CMAKE_BINARY_DIR}/buildinfo.c -o ${CMAKE_BINARY_DIR}/buildinfo.o
-  DEPENDS ${CMAKE_BINARY_DIR}/buildinfo.c
+  ARGS ${compilerargsfix} -c ${BUILDINFO_SRC} -o ${BUILDINFO_OBJ}
+  DEPENDS ${BUILDINFO_SRC}
   VERBATIM)
 
 get_property (GUARD_d816d979367d41ddbbf79a0f29d4c86f GLOBAL PROPERTY "GUARD_d816d979367d41ddbbf79a0f29d4c86f" SET)
 if (NOT GUARD_d816d979367d41ddbbf79a0f29d4c86f)
 
+  add_custom_target (generate_buildinfo
+    DEPENDS ${BUILDINFO_OBJ})
+
+  add_custom_target (release
+    COMMAND rm ${BUILDINFO_SRC})
+
   macro (add_executable name)
-    _add_executable (${name} ${ARGN} ${CMAKE_BINARY_DIR}/buildinfo.o)
+    _add_executable (${name} ${ARGN} ${BUILDINFO_OBJ})
+    add_dependencies (${name} generate_buildinfo)
   endmacro()
 
   macro (add_library name shared)
     if ("${shared}" STREQUAL "SHARED")
-      _add_library (${name} SHARED ${ARGN} ${CMAKE_BINARY_DIR}/buildinfo.o)
+      _add_library (${name} SHARED ${ARGN} ${BUILDINFO_OBJ})
+      add_dependencies (${name} generate_buildinfo)
     else()
       _add_library (${name} ${ARGN})
     endif()
   endmacro()
-
-  add_custom_target (release
-    COMMAND rm ${CMAKE_BINARY_DIR}/buildinfo.c)
 
 endif()
 set_property (GLOBAL PROPERTY "GUARD_d816d979367d41ddbbf79a0f29d4c86f" TRUE)
