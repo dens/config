@@ -318,7 +318,8 @@
 
 (add-hook 'compilation-mode-hook 'my-compilation-mode)
 (defun my-compilation-mode ()
-  (set (make-local-variable 'truncate-lines) nil))
+  (visual-line-mode))
+  ;; (set (make-local-variable 'truncate-lines) nil))
 
 (add-hook 'emacs-lisp-mode-hook 'hs-minor-mode)
 (add-hook 'emacs-lisp-mode-hook 'my-lisp-mode)
