@@ -10,7 +10,7 @@
 (require 'yasnippet-bundle)
 (require 'xcscope nil t)
 (require 'w3m-load nil t)
-(require 'kmacros)
+(require 'magit)
 
 (load "~/.emacs.pre" t)
 
@@ -54,7 +54,6 @@
 (global-set-key (kbd "<C-tab>") 'indent-relative)
 (global-set-key (kbd "<M-SPC>") 'fixup-whitespace)
 (global-set-key (kbd "M-/") 'hippie-expand)
-(global-set-key (kbd "M-RET") 'iswitchb-buffer)
 (global-set-key (kbd "M-`") 'iswitchb-buffer)
 (global-set-key (kbd "M-n") 'forward-paragraph)
 (global-set-key (kbd "M-p") 'backward-paragraph)
@@ -68,6 +67,7 @@
 (global-set-key (kbd "C-<left>") 'backward-page-recenter)
 (global-set-key (kbd "C-x C-k") 'bury-buffer)
 (global-set-key (kbd "C-x C-b") 'ibuffer-other-window)
+(global-set-key (kbd "C-x g") 'magit-status)
 (global-set-key (kbd "M-g") 'goto-line)
 (global-set-key (kbd "M-]") 'next-error)
 (global-set-key (kbd "M-[") 'previous-error)
