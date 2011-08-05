@@ -776,7 +776,21 @@ the local compile command for the current buffer."
 (defun cmake-help-policy () (interactive) (cmake-help "policy"))
 (defun cmake-help-property () (interactive) (cmake-help "property"))
 (defun cmake-help-variable () (interactive) (cmake-help "variable"))
- 
+
+(defun execvp (&rest args)
+  (let ((cmd (mapconcat 'shell-quote-argument args " ")))
+    (shell-command cmd)))
+
+(defun mkbackup (&optional arg)
+  (interactive "P")
+  (cond
+    ((and (buffer-file-name) arg)
+     (execvp "mkbackup" "-d" (buffer-file-name)))
+    ((buffer-file-name)
+     (execvp "mkbackup" (buffer-file-name)))
+    (t
+     (message "ERROR: Buffer has no file"))))
+
 ;;;; kbd macros
 
 (defun point-to-beginning-of-region ()

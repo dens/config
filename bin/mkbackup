@@ -9,7 +9,7 @@ fi
 file=${1?"usage: [-d] $0 FILE"}
 
 if [ "$bydate" = "1" ]; then
-    timestamp=$(date "+%s")
+    timestamp=$(date -r "$file" "+%s")
     bakfile="$file.~$(date -d@$timestamp "+%Y%m%d")~"
     if [ -e "$bakfile" ]; then
         bakfile="$file.~$(date -d@$timestamp "+%Y%m%d%H%M")~"
