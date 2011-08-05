@@ -6,7 +6,7 @@ if [ "$1" = "-d" ]; then
     shift
 fi
 
-file=${1?"usage: [-d] $0 FILE"}
+file=${1?"usage: mkbackup [-d] FILE"}
 
 if [ "$bydate" = "1" ]; then
     timestamp=$(date -r "$file" "+%s")
