@@ -14,6 +14,9 @@
 [color]
         ui = auto
 
+[log]
+        decorate = short
+
 [alias]
         s = status -s
         st = status
@@ -23,6 +26,7 @@
         di = diff
         dic = diff --cached
         ls = ls-files
+        lg = log --no-merges --pretty=format:'%C(yellow)%h%Creset %Cred%an%Creset [%Cgreen%ad%Creset]%Cblue%d%Creset%n  %s%n'
 
 # [i18n]
 #         logOutputEncoding = iso-8859-1
