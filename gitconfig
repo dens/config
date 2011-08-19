@@ -16,6 +16,7 @@
 
 [log]
         decorate = short
+        abbrevCommit = true
 
 [alias]
         s = status -s
@@ -27,6 +28,8 @@
         dic = diff --cached
         ls = ls-files
         lg = log --no-merges --pretty=format:'%C(yellow)%h%Creset %Cred%an%Creset [%Cgreen%ad%Creset]%Cblue%d%Creset%n  %s%n'
+        sh = show --stat
+        cpick = cherry-pick -x
 
 # [i18n]
 #         logOutputEncoding = iso-8859-1
