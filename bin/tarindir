@@ -1,0 +1,4 @@
+#!/bin/bash
+dir=${1?"usage: tarindir DIRECTORY TAR-OPTIONS..."}
+shift
+tar "$@" --transform "s,^,$dir/," --show-transformed-names
