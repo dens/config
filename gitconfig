@@ -1,9 +1,4 @@
 # -*- conf -*-
-
-[user]
-        name = ds
-        email = ds@localhost
-
 [core]
         #pager = less -FRSX
         excludesfile = ~/.gitignore
