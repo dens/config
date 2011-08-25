@@ -30,11 +30,29 @@ export HISTFILE=~/.history
 [ -e ~/.static_history ] && fc -R ~/.static_history
 
 #### PROMPT
-export PROMPT='%(!.%B%n@%m%b.%n@%m):%2~%(!.#.>) '
-precmd () {}
+setprompt()
+{
+    local who="$USER@$HOST"
+    local wholen=${#who}
+    local maxpwd=$((COLUMNS / 2 - wholen - 2))
+    local pwd=${(%):-%$maxpwd<..<%2~}
+    if [ "$UID" -eq 0 ]; then
+        PROMPT="%B${who}%b:${pwd}# "
+    else
+        PROMPT="${who}:${pwd}> "
+    fi
+}
+
+precmd ()
+{
+    setprompt
+}
+
 case "$TERM" in
     xterm|rxvt-unicode)
-        precmd () {
+        precmd ()
+        {
+            setprompt
             print -Pn "\e]0;%n@%m:%~\a" # xterm title
             if [ ! -z "$KONSOLE_DCOP" ]; then
                 print -Pn "\e]30;%2~\a" # konsole tab
