@@ -1,58 +1,56 @@
 #!/bin/bash
 
+# Usage:
+#   $ ec [EMACSCLIENT-OPTIONS] FILE...
+#      open file in new frame
+#
+#   $ ec -t FILE...
+#      open file in terminal
+#
+#   $ ec -ex FILE...
+#      open file in existing frame and detach (--no-wait)
+#
+#   $ ec -bg FILE...
+#      open file in new frame and fork
+#
+#   $ ec -srv
+#      start server
+#
+# Environment Variables:
+#   EMACS_SERVER_NAME
+#   EMACS_SERVER_ARGS
+#
+
 export EMACS_SERVER_NAME=${EMACS_SERVER_NAME:-"server"}
 export EMACS_SERVER_PIDFILE=$HOME/.emacs-${EMACS_SERVER_NAME}.pid
 
-if [ "$1" = "-kill" ]; then
-    kill $(cat $EMACS_SERVER_PIDFILE)
-    exit
-fi
-
-start_server()
+server()
 {
-    if [ ! -f "$EMACS_SERVER_PIDFILE" ]; then
-        startscript=$(mktemp --tmpdir ${EMACS_SERVER_NAME}XXXX)
-        (
-            cat <<EOF > $startscript
-(setq server-name "$EMACS_SERVER_NAME")
-(server-start)
-(with-temp-buffer
-  (insert (format "%i\n" (emacs-pid)))
-  (write-region (point-min) (point-max) "$EMACS_SERVER_PIDFILE"))
-EOF
-            pushd ~ >/dev/null
-            screen -D -m emacs $EMACS_SERVER_ARGS -l $startscript -nw &
-            popd >/dev/null
-            pid=$!
-            wait $pid
-            rm $EMACS_SERVER_PIDFILE
-        ) &
-
-        while [ ! -f "$EMACS_SERVER_PIDFILE" ]; do
-            sleep 1
-        done
-
-        rm $startscript
+    if ! emacsclient -s $EMACS_SERVER_NAME --eval t >/dev/null 2>&1; then
+        DISPLAY= emacs \
+            $EMACS_SERVER_ARGS \
+            --eval "(setq server-name \"$EMACS_SERVER_NAME\")" \
+            --daemon "$@" >/dev/null 2>&1
     fi
 }
 
 if [ "$1" = "-srv" ]; then
-    start_server &
+    server &
     exit
 else
-    start_server
-fi
-
-background=""
-if [ "$1" = "-bg" ]; then
-    shift
-    background=t
+    server
 fi
 
 existing=""
 if [ "$1" = "-ex" ]; then
     shift
     existing=t
+fi
+
+background=""
+if [ "$1" = "-bg" ]; then
+    shift
+    background=t
 fi
 
 if [ -z "$DISPLAY" ]; then
