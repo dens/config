@@ -110,6 +110,7 @@ alias t='ec -nw'
 alias se='sudo -e'
 alias tse='DISPLAY= sudo -e'
 
+alias s='screen'
 alias bc='bc -ql'
 bci() {echo -e "ibase=$1\n$(echo $2 | tr '[:lower:]' '[:upper:]')" | bc; }
 bco() {echo -e "obase=$1\n$(echo $2 | tr '[:lower:]' '[:upper:]')" | bc; }

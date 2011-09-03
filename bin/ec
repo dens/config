@@ -1,11 +1,20 @@
 #!/bin/bash
 
-export EMACS_SERVER_PIDFILE=~/.emacs-server.pid
+export EMACS_SERVER_NAME=${EMACS_SERVER_NAME:-"server"}
+export EMACS_SERVER_PIDFILE=$HOME/.emacs-${EMACS_SERVER_NAME}.pid
 
 if [ ! -f "$EMACS_SERVER_PIDFILE" ]; then
+    startscript=$(mktemp)
     (
+        cat <<EOF > $startscript
+(let ((server-name "$EMACS_SERVER_NAME"))
+  (server-start)
+  (with-temp-buffer
+    (insert (format "%i\n" (emacs-pid)))
+    (write-region (point-min) (point-max) "$EMACS_SERVER_PIDFILE")))
+EOF
         pushd ~ >/dev/null
-        screen -D -m emacs -nw &
+        screen -D -m emacs $EMACS_SERVER_ARGS -l $startscript -nw &
         popd >/dev/null
         pid=$!
         wait $pid
@@ -15,6 +24,8 @@ if [ ! -f "$EMACS_SERVER_PIDFILE" ]; then
     while [ ! -f "$EMACS_SERVER_PIDFILE" ]; do
         sleep 1
     done
+
+    rm $startscript
 fi
 
 background=""
@@ -31,14 +42,14 @@ fi
 
 if [ -z "$DISPLAY" ]; then
     # new frame in terminal
-    exec emacsclient -t -c "$@"
+    exec emacsclient -s $EMACS_SERVER_NAME -t -c "$@"
 elif [ "$existing" ]; then
     # existing frame in background
-    exec emacsclient -n "$@"
+    exec emacsclient -s $EMACS_SERVER_NAME -n "$@"
 elif [ "$background" ]; then
     # new frame in background
-    exec emacsclient -c "$@" >/dev/null &
+    exec emacsclient -s $EMACS_SERVER_NAME -c "$@" >/dev/null &
 else
     # default: new frame
-    exec emacsclient -c "$@"
+    exec emacsclient -s $EMACS_SERVER_NAME -c "$@"
 fi
