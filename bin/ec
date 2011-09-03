@@ -1,0 +1,44 @@
+#!/bin/bash
+
+export EMACS_SERVER_PIDFILE=~/.emacs-server.pid
+
+if [ ! -f "$EMACS_SERVER_PIDFILE" ]; then
+    (
+        pushd ~ >/dev/null
+        screen -D -m emacs -nw &
+        popd >/dev/null
+        pid=$!
+        wait $pid
+        rm $EMACS_SERVER_PIDFILE
+    ) &
+
+    while [ ! -f "$EMACS_SERVER_PIDFILE" ]; do
+        sleep 1
+    done
+fi
+
+background=""
+if [ "$1" = "-bg" ]; then
+    shift
+    background=t
+fi
+
+existing=""
+if [ "$1" = "-ex" ]; then
+    shift
+    existing=t
+fi
+
+if [ -z "$DISPLAY" ]; then
+    # new frame in terminal
+    exec emacsclient -t -c "$@"
+elif [ "$existing" ]; then
+    # existing frame in background
+    exec emacsclient -n "$@"
+elif [ "$background" ]; then
+    # new frame in background
+    exec emacsclient -c "$@" >/dev/null &
+else
+    # default: new frame
+    exec emacsclient -c "$@"
+fi

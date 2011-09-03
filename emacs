@@ -10,7 +10,7 @@
 (require 'yasnippet-bundle)
 (require 'xcscope nil t)
 (require 'w3m-load nil t)
-(require 'magit)
+;; (require 'magit)
 
 (load "~/.emacs.pre" t)
 
@@ -324,8 +324,14 @@
 (add-hook 'emacs-lisp-mode-hook 'hs-minor-mode)
 (add-hook 'emacs-lisp-mode-hook 'my-lisp-mode)
 
+(defun my-server-start ()
+  (server-start)
+  (with-temp-buffer
+    (insert (format "%i\n" (emacs-pid)))
+    (write-region (point-min) (point-max) (getenv "EMACS_SERVER_PIDFILE"))))
+
 (when (not (boundp 'skip-server-start))
-  (add-hook 'emacs-startup-hook 'server-start))
+  (add-hook 'emacs-startup-hook 'my-server-start))
 
 (add-hook 'diff-mode-hook 'my-diff-mode)
 (defun my-diff-mode ()
@@ -1300,6 +1306,7 @@ Loop While $1")
  '(ls-lisp-use-insert-directory-program nil)
  '(ls-lisp-verbosity nil)
  '(menu-bar-mode nil)
+ '(tool-bar-mode nil)
  '(mouse-avoidance-mode (quote jump) nil (avoid))
  '(mouse-wheel-progressive-speed nil)
  '(mouse-yank-at-point t)
