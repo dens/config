@@ -3,29 +3,44 @@
 export EMACS_SERVER_NAME=${EMACS_SERVER_NAME:-"server"}
 export EMACS_SERVER_PIDFILE=$HOME/.emacs-${EMACS_SERVER_NAME}.pid
 
-if [ ! -f "$EMACS_SERVER_PIDFILE" ]; then
-    startscript=$(mktemp)
-    (
-        cat <<EOF > $startscript
+if [ "$1" = "-kill" ]; then
+    kill $(cat $EMACS_SERVER_PIDFILE)
+    exit
+fi
+
+start_server()
+{
+    if [ ! -f "$EMACS_SERVER_PIDFILE" ]; then
+        startscript=$(mktemp --tmpdir ${EMACS_SERVER_NAME}XXXX)
+        (
+            cat <<EOF > $startscript
 (setq server-name "$EMACS_SERVER_NAME")
 (server-start)
 (with-temp-buffer
   (insert (format "%i\n" (emacs-pid)))
   (write-region (point-min) (point-max) "$EMACS_SERVER_PIDFILE"))
 EOF
-        pushd ~ >/dev/null
-        screen -D -m emacs $EMACS_SERVER_ARGS -l $startscript -nw &
-        popd >/dev/null
-        pid=$!
-        wait $pid
-        rm $EMACS_SERVER_PIDFILE
-    ) &
+            pushd ~ >/dev/null
+            screen -D -m emacs $EMACS_SERVER_ARGS -l $startscript -nw &
+            popd >/dev/null
+            pid=$!
+            wait $pid
+            rm $EMACS_SERVER_PIDFILE
+        ) &
 
-    while [ ! -f "$EMACS_SERVER_PIDFILE" ]; do
-        sleep 1
-    done
+        while [ ! -f "$EMACS_SERVER_PIDFILE" ]; do
+            sleep 1
+        done
 
-    rm $startscript
+        rm $startscript
+    fi
+}
+
+if [ "$1" = "-srv" ]; then
+    start_server &
+    exit
+else
+    start_server
 fi
 
 background=""
