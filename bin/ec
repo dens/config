@@ -7,11 +7,11 @@ if [ ! -f "$EMACS_SERVER_PIDFILE" ]; then
     startscript=$(mktemp)
     (
         cat <<EOF > $startscript
-(let ((server-name "$EMACS_SERVER_NAME"))
-  (server-start)
-  (with-temp-buffer
-    (insert (format "%i\n" (emacs-pid)))
-    (write-region (point-min) (point-max) "$EMACS_SERVER_PIDFILE")))
+(setq server-name "$EMACS_SERVER_NAME")
+(server-start)
+(with-temp-buffer
+  (insert (format "%i\n" (emacs-pid)))
+  (write-region (point-min) (point-max) "$EMACS_SERVER_PIDFILE"))
 EOF
         pushd ~ >/dev/null
         screen -D -m emacs $EMACS_SERVER_ARGS -l $startscript -nw &
