@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Usage:
-#   $ ec [EMACSCLIENT-OPTIONS] FILE...
+#   $ ec [-bg] [EMACSCLIENT-OPTIONS] FILE...
+#   $ ec -srv
 #
 # Environment Variables:
 #   EMACS_SERVER_NAME
@@ -28,44 +29,33 @@ else
 fi
 
 args=()
+background=""
+nowait=""
 for i in "$@"; do
-    if [ "$i" = "-bg" ]; then
-        background=t
-    else
-        args=("${args[@]}" "$i")
-    fi
+    case "$i" in
+        -bg)
+            background=t
+            ;;
+        -n|--no-wait)
+            nowait=t
+            args=("${args[@]}" "$i")
+            ;;
+        *)
+            args=("${args[@]}" "$i")
+            ;;
+    esac
 done
-
-if [ -z "$DISPLAY" ]; then
-    exec emacsclient -s $EMACS_SERVER_NAME -c -t "${args[@]}"
-else
-    if [ "$background" ]; then
-        exec emacsclient -s $EMACS_SERVER_NAME -c "${args[@]}" >/dev/null &
-    else
-        exec emacsclient -s $EMACS_SERVER_NAME -c "${args[@]}"
-    fi
+# use -c by default but not with --no-wait
+if [ ! "$nowait" ]; then
+    args=("${args[@]}" "-c")
 fi
 
-
-# existing=""
-# if [ "$1" = "-ex" ]; then
-#     shift
-#     existing=t
-# fi
-# 
-# background=""
-# if [ "$1" = "-bg" ]; then
-#     shift
-#     background=t
-# fi
-
-# elif [ "$existing" ]; then
-#     # existing frame in background
-#     exec emacsclient -s $EMACS_SERVER_NAME -n "$@"
-# elif [ "$background" ]; then
-#     # new frame in background
-#     exec emacsclient -s $EMACS_SERVER_NAME -c "$@" >/dev/null &
-# else
-#     # default: new frame
-#     exec emacsclient -s $EMACS_SERVER_NAME -c "$@"
-# fi
+if [ -z "$DISPLAY" ]; then
+    exec emacsclient -s $EMACS_SERVER_NAME -t "${args[@]}"
+else
+    if [ "$background" ]; then
+        exec emacsclient -s $EMACS_SERVER_NAME "${args[@]}" >/dev/null &
+    else
+        exec emacsclient -s $EMACS_SERVER_NAME "${args[@]}"
+    fi
+fi
