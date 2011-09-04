@@ -2,19 +2,6 @@
 
 # Usage:
 #   $ ec [EMACSCLIENT-OPTIONS] FILE...
-#      open file in new frame
-#
-#   $ ec -t FILE...
-#      open file in terminal
-#
-#   $ ec -ex FILE...
-#      open file in existing frame and detach (--no-wait)
-#
-#   $ ec -bg FILE...
-#      open file in new frame and fork
-#
-#   $ ec -srv
-#      start server
 #
 # Environment Variables:
 #   EMACS_SERVER_NAME
@@ -22,9 +9,8 @@
 #
 
 export EMACS_SERVER_NAME=${EMACS_SERVER_NAME:-"server"}
-export EMACS_SERVER_PIDFILE=$HOME/.emacs-${EMACS_SERVER_NAME}.pid
 
-server()
+start_server()
 {
     if ! emacsclient -s $EMACS_SERVER_NAME --eval t >/dev/null 2>&1; then
         DISPLAY= emacs \
@@ -35,34 +21,51 @@ server()
 }
 
 if [ "$1" = "-srv" ]; then
-    server &
+    start_server &
     exit
 else
-    server
+    start_server
 fi
 
-existing=""
-if [ "$1" = "-ex" ]; then
-    shift
-    existing=t
-fi
-
-background=""
-if [ "$1" = "-bg" ]; then
-    shift
-    background=t
-fi
+args=()
+for i in "$@"; do
+    if [ "$i" = "-bg" ]; then
+        background=t
+    else
+        args=("${args[@]}" "$i")
+    fi
+done
 
 if [ -z "$DISPLAY" ]; then
-    # new frame in terminal
-    exec emacsclient -s $EMACS_SERVER_NAME -t -c "$@"
-elif [ "$existing" ]; then
-    # existing frame in background
-    exec emacsclient -s $EMACS_SERVER_NAME -n "$@"
-elif [ "$background" ]; then
-    # new frame in background
-    exec emacsclient -s $EMACS_SERVER_NAME -c "$@" >/dev/null &
+    exec emacsclient -s $EMACS_SERVER_NAME -c -t "${args[@]}"
 else
-    # default: new frame
-    exec emacsclient -s $EMACS_SERVER_NAME -c "$@"
+    if [ "$background" ]; then
+        exec emacsclient -s $EMACS_SERVER_NAME -c "${args[@]}" >/dev/null &
+    else
+        exec emacsclient -s $EMACS_SERVER_NAME -c "${args[@]}"
+    fi
 fi
+
+
+# existing=""
+# if [ "$1" = "-ex" ]; then
+#     shift
+#     existing=t
+# fi
+# 
+# background=""
+# if [ "$1" = "-bg" ]; then
+#     shift
+#     background=t
+# fi
+
+# elif [ "$existing" ]; then
+#     # existing frame in background
+#     exec emacsclient -s $EMACS_SERVER_NAME -n "$@"
+# elif [ "$background" ]; then
+#     # new frame in background
+#     exec emacsclient -s $EMACS_SERVER_NAME -c "$@" >/dev/null &
+# else
+#     # default: new frame
+#     exec emacsclient -s $EMACS_SERVER_NAME -c "$@"
+# fi

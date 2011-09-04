@@ -105,8 +105,8 @@ alias p='ps -eo pid,user,args --sort user -H'
 alias pg='pgrep -lf'
 
 alias e='ec -bg'
-alias ee='ec -ex'
-alias t='ec -nw'
+alias ee='ec -n'
+alias t='ec -t'
 alias se='sudo -e'
 alias tse='DISPLAY= sudo -e'
 
