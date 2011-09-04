@@ -1254,6 +1254,7 @@ Loop While $1")
   ;; If there is more than one, they won't work right.
  '(apropos-do-all t)
  '(backup-directory-alist (quote (("." . "~/.backups"))))
+ '(blink-cursor-mode t)
  '(bookmark-save-flag 1)
  '(bookmark-version-control nil)
  '(browse-url-browser-function (quote browse-url-firefox))
