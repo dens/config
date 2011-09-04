@@ -45,9 +45,10 @@ for i in "$@"; do
             ;;
     esac
 done
-# use -c by default but not with --no-wait
+
+# create frame by default unless --no-wait was given
 if [ ! "$nowait" ]; then
-    args=("${args[@]}" "-c")
+    args=("${args[@]}" "--create-frame")
 fi
 
 if [ -z "$DISPLAY" ]; then
