@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Usage:
-#   $ ec [-bg] [EMACSCLIENT-OPTIONS] FILE...
-#   $ ec -srv
+#   $ emacsc [-bg] [EMACSCLIENT-OPTIONS] FILE...
+#   $ emacsc -srv
 #
 # Environment Variables:
 #   EMACS_SERVER_NAME

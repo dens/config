@@ -72,7 +72,7 @@ bindkey "\ee" edit-command-line
 bindkey "^W" kill-region
 
 #### DEFAULTS
-export EDITOR=ec
+export EDITOR=emacsc
 export LESS=-FRSX
 export LS_COLORS='no=00:fi=00:di=01;34:ln=00;36:pi=00:so=00:do=00:bd=00:cd=00:or=00:su=00:sg=00:tw=01;34:ow=01;34:st=01;34:ex=01;32:';
 export GREP_COLORS="fn=1;32:ln=0;31:mt=0;43"
@@ -104,9 +104,9 @@ alias ka='killall'
 alias p='ps -eo pid,user,args --sort user -H'
 alias pg='pgrep -lf'
 
-alias e='ec -bg'
-alias ee='ec -n'
-alias t='ec -t'
+alias e='emacsc -bg'
+alias ee='emacsc -n'
+alias t='emacsc -t'
 alias se='sudo -e'
 alias tse='DISPLAY= sudo -e'
 

@@ -7,7 +7,6 @@
 
 (add-to-list 'load-path "~/.emacs.d/lisp")
 
-(require 'yasnippet-bundle)
 (require 'xcscope nil t)
 (require 'w3m-load nil t)
 ;; (require 'magit)
@@ -45,8 +44,6 @@
 (setq prolog-system 'gnu)
 
 ;;;; keys
-
-(setq yas/trigger-key (kbd "<backtab>")) ;S-tab
 
 (ffap-bindings)
 (global-set-key (kbd "RET") 'newline-and-indent)
@@ -314,8 +311,6 @@
                         (file-name-sans-extension file))
                 11))))
 
-(add-hook 'cmake-mode-hook 'yas/minor-mode)
-
 (add-hook 'compilation-mode-hook 'my-compilation-mode)
 (defun my-compilation-mode ()
   (visual-line-mode))
@@ -450,7 +445,6 @@
 
 (add-hook 'visual-basic-mode-hook 'c-subword-mode)
 (add-hook 'visual-basic-mode-hook 'my-visual-basic-mode)
-(add-hook 'visual-basic-mode-hook 'yas/minor-mode)
 (defun my-visual-basic-mode ()
   (setq tab-width 8)
   (setq indent-tabs-mode t)
@@ -979,6 +973,11 @@ string).  It returns t if a new expansion is found, nil otherwise."
 
 ;;;; ya snippets
 
+(when (require 'yasnippet-bundle nil t)
+  (setq yas/trigger-key (kbd "<backtab>")) ;S-tab
+  (add-hook 'cmake-mode-hook 'yas/minor-mode)
+  (add-hook 'visual-basic-mode-hook 'yas/minor-mode)
+
 ;;; snippets for sh-mode
 (yas/define-snippets 'sh-mode
 '(
@@ -1245,6 +1244,8 @@ Loop While $1")
   )
 'text-mode)
 
+)  ; when require yasnippet-bundle
+
 ;;;; custom-set
 
 (custom-set-variables
@@ -1275,6 +1276,7 @@ Loop While $1")
  '(enable-recursive-minibuffers t)
  '(fill-column 65)
  '(find-ls-option (quote ("-print0 | xargs -0 ls -ld" . "-ld")))
+ '(focus-follows-mouse nil)
  '(global-hi-lock-mode t)
  '(global-subword-mode t)
  '(history-delete-duplicates t)

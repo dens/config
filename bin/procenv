@@ -1,0 +1,4 @@
+#!/bin/sh
+pid=${1?"$0 PID"}
+xargs -n1 -0 < /proc/$pid/environ
+

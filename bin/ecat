@@ -2,7 +2,7 @@
 echo "lese stdin..."
 f=$(mktemp /tmp/${ECAT_PREFIX:-ecat}.XXXXXX)
 cat>$f
-ec "$@" $f
+emacsc "$@" $f
 if [ "$1" != "-n" ]; then
     rm $f
 fi
