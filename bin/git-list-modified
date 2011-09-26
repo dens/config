@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ "$1" = "--process" ]; then
+    if [ "$2" ]; then
+        echo "$(git rev-parse --show-toplevel)/${2:3}"
+    fi
+else
+    exec git status -z -uno |xargs -0 -n1 $0 --process
+fi
