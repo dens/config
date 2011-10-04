@@ -181,6 +181,9 @@
                                (interactive)
                                (ff-find-other-file nil t)))
   (setq c-auto-newline t)
+  (setq cc-search-directories '("." ".." "../src" "../.." "../../src"
+                                "include" "include/*" "../include/*"
+                                "/usr/include" "/usr/local/include/*"))
   (c-set-style "gnu++"))
 
 
