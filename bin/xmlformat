@@ -1,2 +1,6 @@
 #!/bin/sh
-exec xmllint --format "$@"
+if [ -z "$1" ]; then
+    exec xmllint --format -
+else
+    exec xmllint --format "$@"
+fi
