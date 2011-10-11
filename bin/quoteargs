@@ -1,0 +1,11 @@
+#!/bin/bash
+
+quoteargs()
+{
+    for i in "$@"; do
+        printf "'%s' " "$(echo "$i" | sed "s/'/'\\\\''/g")"
+    done
+    echo
+}
+
+quoteargs "$@"

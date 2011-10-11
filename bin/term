@@ -1,0 +1,31 @@
+#!/bin/bash
+
+quoteargs()
+{
+    for i in "$@"; do
+        printf "'%s' " "$(echo "$i" | sed "s/'/'\\\\''/g")"
+    done
+    echo
+}
+
+termargs=()
+cmdargs=()
+cmdmode=
+
+for i in "$@"; do
+    if [ "$cmdmode" ]; then
+        cmdargs=("${cmdargs[@]}" "$i")
+    elif [ "$i" = "-e" ]; then
+        cmdmode=t
+    else
+        termargs=("${termargs[@]}" "$i")
+    fi
+done
+        
+if [ "${cmdargs[0]}" ]; then
+    exec gnome-terminal "${termargs[@]}" -e "$(quoteargs "${cmdargs[@]}")"
+else
+    exec gnome-terminal "$@"
+fi
+
+#exec konsole "$@"
