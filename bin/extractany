@@ -1,0 +1,118 @@
+#!/bin/bash
+
+cmd="$(basename $0)"
+
+fail()
+{
+    rc=$?
+    test "$1" && echo "$cmd: $1"
+    test "$2" && exit "$2"
+    exit $rc
+}
+
+goto_subdir()
+{
+    mkdir "$namewe" || fail
+    cd "$namewe" || fail
+
+    if [ "${name[1]}" != "/" ]; then
+        name="../$name"
+    fi
+}
+
+fix_subdir()
+{
+    if diff -q <(find . -maxdepth 1|head -3) <(echo -e ".\n./$namewe") >/dev/null 2>&1; then
+        cd ..
+        tmp=$(mktemp -d --tmpdir=.)
+        test $? != 0 && fail
+        mv "$namewe" "$tmp" || fail
+        mv "$tmp/$namewe/$namewe" .  || fail
+        rmdir "$tmp/$namewe" || fail
+        rmdir "$tmp" || fail
+    else
+        cd ..
+        echo "$cmd: directory created"
+    fi
+}
+
+do_extract()
+{
+    if [ "$2" ]; then
+        verbose=t
+        name="$2"
+    else
+        verbose=
+        name="$1"
+    fi
+
+    case "$(echo "$name" | tr '[:upper:]' '[:lower:]')" in
+        *.gz)      type="gz"; namewe="$(basename "$name" .gz)" ;;
+        *.gzip)    type="gz"; namewe="$(basename "$name" .gzip)" ;;
+        *.bz)      type="bz"; namewe="$(basename "$name" .bz)" ;;
+        *.bz2)     type="bz"; namewe="$(basename "$name" .bz2)" ;;
+        *.bzip2)   type="bz"; namewe="$(basename "$name" .bzip2)" ;;
+        *.tar)     type="tar"; namewe="$(basename "$name" .tar)" ;;
+        *.tgz)     type="tgz"; namewe="$(basename "$name" .tgz)" ;;
+        *.tar.gz)  type="tgz"; namewe="$(basename "$name" .tar.gz)" ;;
+        *.tbz)     type="tbz"; namewe="$(basename "$name" .tbz)" ;;
+        *.tbz2)    type="tbz"; namewe="$(basename "$name" .tbz2)" ;;
+        *.tar.bz2) type="tbz"; namewe="$(basename "$name" .tar.bz2)" ;;
+        *.zip)     type="zip"; namewe="$(basename "$name" .zip)" ;;
+        *.jar)     type="zip"; namewe="$(basename "$name" .jar)" ;;
+        *.rar)     type="rar"; namewe="$(basename "$name" .rar)" ;;
+        *.r??)     type="rar"; namewe="$(basename "$name" | sed 's/.r..$//')" ;;
+#        *.tmp)     type="tmp"; namewe="$(basename "$name" .tmp)" ;;
+#        *.part)    type="tmp"; namewe="$(basename "$name" .part)" ;;
+        *)
+            fail "unknown file format: $name" 1
+            ;;
+    esac
+
+    case "$type" in
+        gz)
+            gunzip "$name"
+            ;;
+        bz)
+            bunzip2 "$name"
+            ;;
+        tar)
+            goto_subdir
+            tar xf "$name" || fail
+            fix_subdir
+            ;;
+        tgz)
+            goto_subdir
+            tar xzf "$name" || fail
+            fix_subdir
+            ;;
+        tbz)
+            goto_subdir
+            tar xjf "$name" || fail
+            fix_subdir
+            ;;
+        zip)
+            goto_subdir
+            unzip "$name" || fail
+            fix_subdir
+            ;;
+        rar)
+            goto_subdir
+            unrar x -kb "$name" || fail
+            fix_subdir
+            ;;
+#        tmp)
+#            $0 $namewe
+    esac
+}
+
+if [ "$1" = "-v" ]; then
+    verbose=t
+    shift
+else
+    verbose=
+fi
+
+for i in "$@"; do
+    do_extract $verbose "$i"
+done
