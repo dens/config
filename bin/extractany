@@ -1,6 +1,8 @@
 #!/bin/bash
 
 cmd="$(basename $0)"
+filename=
+name=
 
 fail()
 {
@@ -12,23 +14,23 @@ fail()
 
 goto_subdir()
 {
-    mkdir "$namewe" || fail
-    cd "$namewe" || fail
+    mkdir "$name" || fail
+    cd "$name" || fail
 
-    if [ "${name[1]}" != "/" ]; then
-        name="../$name"
+    if [ "${filename[1]}" != "/" ]; then
+        filename="../$filename"
     fi
 }
 
 fix_subdir()
 {
-    if diff -q <(find . -maxdepth 1|head -3) <(echo -e ".\n./$namewe") >/dev/null 2>&1; then
+    if diff -q <(find . -maxdepth 1|head -3) <(echo -e ".\n./$name") >/dev/null 2>&1; then
         cd ..
         tmp=$(mktemp -d --tmpdir=.)
         test $? != 0 && fail
-        mv "$namewe" "$tmp" || fail
-        mv "$tmp/$namewe/$namewe" .  || fail
-        rmdir "$tmp/$namewe" || fail
+        mv "$name" "$tmp" || fail
+        mv "$tmp/$name/$name" .  || fail
+        rmdir "$tmp/$name" || fail
         rmdir "$tmp" || fail
     else
         cd ..
@@ -36,73 +38,77 @@ fix_subdir()
     fi
 }
 
+scan_file_name()
+{
+    filename="$1"
+    case "$(echo "$filename" | tr '[:upper:]' '[:lower:]')" in
+        *.tar.gz)  echo -n "tgz "; basename "$filename" .tar.gz ;;
+        *.tar.bz2) echo -n "tbz "; basename "$filename" .tar.bz2 ;;
+        *.gz)      echo -n "gz "; basename "$filename" .gz ;;
+        *.gzip)    echo -n "gz "; basename "$filename" .gzip ;;
+        *.bz)      echo -n "bz "; basename "$filename" .bz ;;
+        *.bz2)     echo -n "bz "; basename "$filename" .bz2 ;;
+        *.bzip2)   echo -n "bz "; basename "$filename" .bzip2 ;;
+        *.tar)     echo -n "tar "; basename "$filename" .tar ;;
+        *.tgz)     echo -n "tgz "; basename "$filename" .tgz ;;
+        *.tbz)     echo -n "tbz "; basename "$filename" .tbz ;;
+        *.tbz2)    echo -n "tbz "; basename "$filename" .tbz2 ;;
+        *.zip)     echo -n "zip "; basename "$filename" .zip ;;
+        *.jar)     echo -n "zip "; basename "$filename" .jar ;;
+        *.rar)     echo -n "rar "; basename "$filename" .rar ;;
+        *.r??)     echo -n "rar "; basename "$filename" | sed 's/.r..$//' ;;
+        *.tmp)     scan_file_name $(basename "$filename" .tmp) ;;
+        *.part)    scan_file_name $(basename "$filename" .part) ;;
+    esac
+}
+
 do_extract()
 {
     if [ "$2" ]; then
         verbose=t
-        name="$2"
+        filename="$2"
     else
         verbose=
-        name="$1"
+        filename="$1"
     fi
 
-    case "$(echo "$name" | tr '[:upper:]' '[:lower:]')" in
-        *.gz)      type="gz"; namewe="$(basename "$name" .gz)" ;;
-        *.gzip)    type="gz"; namewe="$(basename "$name" .gzip)" ;;
-        *.bz)      type="bz"; namewe="$(basename "$name" .bz)" ;;
-        *.bz2)     type="bz"; namewe="$(basename "$name" .bz2)" ;;
-        *.bzip2)   type="bz"; namewe="$(basename "$name" .bzip2)" ;;
-        *.tar)     type="tar"; namewe="$(basename "$name" .tar)" ;;
-        *.tgz)     type="tgz"; namewe="$(basename "$name" .tgz)" ;;
-        *.tar.gz)  type="tgz"; namewe="$(basename "$name" .tar.gz)" ;;
-        *.tbz)     type="tbz"; namewe="$(basename "$name" .tbz)" ;;
-        *.tbz2)    type="tbz"; namewe="$(basename "$name" .tbz2)" ;;
-        *.tar.bz2) type="tbz"; namewe="$(basename "$name" .tar.bz2)" ;;
-        *.zip)     type="zip"; namewe="$(basename "$name" .zip)" ;;
-        *.jar)     type="zip"; namewe="$(basename "$name" .jar)" ;;
-        *.rar)     type="rar"; namewe="$(basename "$name" .rar)" ;;
-        *.r??)     type="rar"; namewe="$(basename "$name" | sed 's/.r..$//')" ;;
-#        *.tmp)     type="tmp"; namewe="$(basename "$name" .tmp)" ;;
-#        *.part)    type="tmp"; namewe="$(basename "$name" .part)" ;;
-        *)
-            fail "unknown file format: $name" 1
-            ;;
-    esac
+    read type name < <(scan_file_name "$filename")
 
     case "$type" in
         gz)
-            gunzip "$name"
+            gunzip "$filename"
             ;;
         bz)
-            bunzip2 "$name"
+            bunzip2 "$filename"
             ;;
         tar)
             goto_subdir
-            tar xf "$name" || fail
+            tar xf "$filename" || fail
             fix_subdir
             ;;
         tgz)
             goto_subdir
-            tar xzf "$name" || fail
+            tar xzf "$filename" || fail
             fix_subdir
             ;;
         tbz)
             goto_subdir
-            tar xjf "$name" || fail
+            tar xjf "$filename" || fail
             fix_subdir
             ;;
         zip)
             goto_subdir
-            unzip "$name" || fail
+            unzip "$filename" || fail
             fix_subdir
             ;;
         rar)
             goto_subdir
-            unrar x -kb "$name" || fail
+            unrar x -kb "$filename" || fail
             fix_subdir
             ;;
-#        tmp)
-#            $0 $namewe
+        *)
+            fail "unknown file format: $filename" 1
+            ;;
     esac
 }
 
