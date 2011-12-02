@@ -27,15 +27,17 @@ def readdata (srcfile):
     
     mappings = {}
     for line in fi:
-        x = re.match (r'(\S+)\s+(.+)', line.strip())
+	# PROJECT-ALIAS NAME...
+        x = re.match (r'(\S+)\s+(.+)', line.strip()) # fixme .+?
         if x:
             (alias, name) = x.group (1, 2)
             mappings[alias] = name
         else:
             break
-    
+
     weeks = {}
     for line in fi:
+	# YYYY-MM-DD HOURS PROJECT-ALIAS rest...
         x = re.match (r'([0-9]{4}-[0-9]{2}-[0-9]{2})\s+([0-9,.]+)\s+(\S+)\s*(.*)', line)
         if x:
             (date, hours, project, info) = x.group (1, 2, 3, 4)
@@ -70,3 +72,4 @@ def insert_last_week():
         row = findrow (sheet, project)
         cell = sheet.getCellByPosition (lastweek + 1, row)
         cell.setValue (hours)
+
