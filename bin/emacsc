@@ -28,6 +28,9 @@ else
     start_server
 fi
 
+nl="
+"
+
 args=()
 background=""
 terminal=""
@@ -46,7 +49,31 @@ for i in "$@"; do
             args=("${args[@]}" "$i")
             ;;
         *)
-            args=("${args[@]}" "$i")
+            # /path/to/file
+            if [ -f "$i" ]; then
+                file="$i"
+                row=
+                col=
+            else
+                # /path/to/file:ROW:COLUMN
+                IFS="$nl" read -d EOF file row col < \
+                    <(echo "$i" | sed -r -n 's/^(.*):([0-9]+):([0-9]+)$/\1\n\2\n\3/p')
+
+                if [ ! "$file" ]; then
+                    # /path/to/file:ROW
+                    IFS="$nl" read -d EOF file row col < \
+                        <(echo "$i" | sed -r -n 's/^(.*):([0-9]+):?$/\1\n\2/p')
+                fi
+            fi
+
+            if [ "$col" ]; then
+                args=("${args[@]}" "+$row:$col" "$file")
+            elif [ "$row" ]; then
+                args=("${args[@]}" "+$row" "$file")
+            else
+                args=("${args[@]}" "$i")
+            fi
+
             ;;
     esac
 done
