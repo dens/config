@@ -23,7 +23,7 @@
         dic = diff --cached
         dis = diff --stat
         ls = ls-files
-        lg = log --no-merges --pretty=format:'%C(yellow)%h%Creset %Cred%an%Creset [%Cgreen%ad%Creset]%Cblue%d%Creset%n  %s%n'
+        lg = log --pretty=format:'%C(yellow)%h%Creset %Cred%an%Creset [%Cgreen%ad%Creset]%Cblue%d%Creset%n  %s%n'
         sh = show --stat
         cpick = cherry-pick -x
 
