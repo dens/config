@@ -57,7 +57,7 @@ for i in "$@"; do
             else
                 # /path/to/file:ROW:COLUMN
                 IFS="$nl" read -d EOF file row col < \
-                    <(echo "$i" | sed -r -n 's/^(.*):([0-9]+):([0-9]+)$/\1\n\2\n\3/p')
+                    <(echo "$i" | sed -r -n 's/^(.*):([0-9]+):([0-9]+):?$/\1\n\2\n\3/p')
 
                 if [ ! "$file" ]; then
                     # /path/to/file:ROW
