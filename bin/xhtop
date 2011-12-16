@@ -1,0 +1,4 @@
+#!/bin/sh
+exec xterm -fn 8x13 -g 80x40 -e htop
+
+
