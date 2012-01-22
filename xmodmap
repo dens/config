@@ -1,0 +1,60 @@
+! -*- conf-xdefaults -*-
+!caps lock
+keycode 66 = Control_L          
+clear Lock
+add Control = Control_L
+
+add Mod4 = Super_L
+
+!alt rechts
+!keycode 113 = Mode_switch #ubuntu 8.04
+keycode 108 = Mode_switch
+!kontextmenü
+! keycode 117 = Multi_key #ubuntu 8.04
+keycode 135 = Multi_key
+
+!keycode 222 = F13
+!keycode 223 = F14
+!keycode 227 = F16
+
+keysym a = a A adiaeresis Adiaeresis
+keysym o = o O odiaeresis Odiaeresis
+keysym u = u U udiaeresis Udiaeresis
+keysym s = s S ssharp section
+keysym e = e E EuroSign
+keysym f = f F function
+keysym m = m M mu
+keysym p = p P thorn THORN
+keysym r = r R registered
+keysym c = c C cent copyright
+keysym y = y Y yen
+keysym b = b B Greek_beta
+keysym d = d D Greek_delta
+keysym l = l L Greek_lamda
+keysym Up = Up Up uparrow
+keysym Down = Down Down downarrow
+keysym Left = Left Left leftarrow
+keysym Right = Right Right rightarrow
+
+keycode 10 = 1 exclam onesuperior exclamdown
+keycode 11 = 2 at twosuperior onehalf
+keycode 12 = 3 numbersign threesuperior threequarters
+keycode 13 = 4 dollar Ooblique onequarter
+keycode 17 = 8 asterisk infinity
+keycode 47 = semicolon colon Execute
+keycode 49 = grave asciitilde degree
+keycode 61 = slash question questiondown
+keycode 59 = comma less guillemotleft
+keycode 20 = minus underscore macron
+keycode 21 = equal plus plusminus
+keycode 60 = period greater guillemotright periodcentered
+! keycode 112 = KP_Divide KP_Divide division # ubuntu 8.04 .. ??
+! keycode 63 = KP_Multiply KP_Multiply multiply
+
+! maus
+keycode 174 = XF86AudioLowerVolume
+keycode 176 = XF86AudioRaiseVolume
+! keycode 160 = XF86AudioMute
+keycode 160 = F13
+keycode 236 = XF86Mail
+!pointer = 1 2 3 4 5 7 6 8 9
