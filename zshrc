@@ -66,6 +66,9 @@ esac
 autoload edit-command-line
 zle -N edit-command-line
 
+autoload smart-insert-last-word
+zle -N insert-last-word smart-insert-last-word
+
 bindkey "\ef" emacs-forward-word
 bindkey "\eF" emacs-forward-word
 bindkey "\ee" edit-command-line
