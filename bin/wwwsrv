@@ -1,0 +1,16 @@
+#!/bin/bash
+
+FILE="$1"
+PORT="${2:-80}"
+FILENAME=$(basename "$1")
+FILESIZE=$(stat -c "%s" $FILE)
+
+header=$(echo -en "\
+HTTP/1.0 200 OK\r\n\
+Content-Type: application/octet-stream\r\n\
+Content-Disposition: attachment;filename=$FILENAME\r\n\
+Content-Length=$FILESIZE\r\n\
+\r\n\
+")
+
+(echo "$header"; cat "$FILE") | socat -U TCP-LISTEN:$PORT,reuseaddr STDIN
